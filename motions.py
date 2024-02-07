@@ -10,16 +10,17 @@ from rclpy.qos import QoSProfile
     # For sending velocity commands to the robot: Twist
     # For the sensors: Imu, LaserScan, and Odometry
 # Check the online documentation to fill in the lines below
-from ... import Twist
+from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
-from ... import LaserScan
-from ... import Odometry
+from sensor_msgs.msg  import LaserScan
+from nav_msgs.msg import Odometry
+
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 from rclpy.time import Time
 
 # You may add any other imports you may need/want to use below
 # import ...
-
 
 CIRCLE=0; SPIRAL=1; ACC_LINE=2
 motion_types=['circle', 'spiral', 'line']
@@ -40,7 +41,7 @@ class motion_executioner(Node):
         self.laser_initialized=False
         
         # TODO Part 3: Create a publisher to send velocity commands by setting the proper parameters in (...)
-        self.vel_publisher=self.create_publisher(...)
+        self.vel_publisher=self.create_publisher(Twist, "cmd_vel", 10)
                 
         # loggers
         self.imu_logger=Logger('imu_content_'+str(motion_types[motion_type])+'.csv', headers=["acc_x", "acc_y", "angular_z", "stamp"])
@@ -48,20 +49,20 @@ class motion_executioner(Node):
         self.laser_logger=Logger('laser_content_'+str(motion_types[motion_type])+'.csv', headers=["ranges", "stamp"])
         
         # TODO Part 3: Create the QoS profile by setting the proper parameters in (...)
-        qos=QoSProfile(...)
+        qos=QoSProfile(reliability = ReliabilityPolicy.BEST_EFFORT, durability=DurabilityPolicy.VOLATILE, depth = 10)
 
         # TODO Part 5: Create below the subscription to the topics corresponding to the respective sensors
         # IMU subscription
+        self.imu_sub = self.create_subscriber(Imu, '/imu', self.imu_callback(), 10)
         
-        ...
         
         # ENCODER subscription
 
-        ...
+        self.enc_sub = self.create_subscriber(Odometry, '/odom', self.odom_callback(), qos_profile=qos)
         
         # LaserScan subscription 
         
-        ...
+        self.laser_sub = self.create_subscriber(LaserScan, '/scan', self.laser_callback(), 10)
         
         self.create_timer(0.1, self.timer_callback)
 
@@ -72,16 +73,28 @@ class motion_executioner(Node):
     # such: Time.from_msg(imu_msg.header.stamp).nanoseconds
     # You can save the needed fields into a list, and pass the list to the log_values function in utilities.py
 
+        self.logger_imu = Logger('logs/imu.csv', headers=['stamp', 'orient', 'ang_vel', 'lin_acc'])
+
+        self.logger_odom = Logger('logs/odom.csv', headers=['stamp', 'pose', 'twist'])
+
+        self.logger_laser = Logger('logs/laser.csv', headers=['stamp', 'ranges'])
+
     def imu_callback(self, imu_msg: Imu):
-        ...    # log imu msgs
+       stamp = Time.from_msg(imu_msg.header.stamp)
+       ang_vel = imu_msg.angular_velocity
+       lin_acc = imu_msg.linear_acceleration
+       self.logger_imu.log_values([stamp, ang_vel, lin_acc])
         
     def odom_callback(self, odom_msg: Odometry):
-        
-        ... # log odom msgs
+       stamp = Time.from_msg(odom_msg.header.stamp)
+       pose = odom_msg.pose
+       twist = odom_msg.twist
+       self.logger_odom.log_values([stamp, pose, twist])
                 
     def laser_callback(self, laser_msg: LaserScan):
-        
-        ... # log laser msgs with position msg at that time
+       stamp = Time.from_msg(laser_msg.header.stamp)
+       ranges = laser_msg.ranges
+       self.logger_laser.log_values([stamp, ranges])
                 
     def timer_callback(self):
         
@@ -114,17 +127,24 @@ class motion_executioner(Node):
     def make_circular_twist(self):
         
         msg=Twist()
-        ... # fill up the twist msg for circular motion
+        msg.linear.x = 0.2
+        msg.angular.z = 0.5
+         # fill up the twist msg for circular motion
         return msg
 
     def make_spiral_twist(self):
         msg=Twist()
-        ... # fill up the twist msg for spiral motion
+        msg.linear.x = 0.2
+        msg.angular.z = 0.5
+
+         # fill up the twist msg for spiral motion
         return msg
     
     def make_acc_line_twist(self):
         msg=Twist()
-        ... # fill up the twist msg for line motion
+        msg.linear.x = 0.2
+        msg.angular.z = 0.5
+         # fill up the twist msg for line motion
         return msg
 
 import argparse
