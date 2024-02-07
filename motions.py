@@ -41,7 +41,7 @@ class motion_executioner(Node):
         self.laser_initialized=False
         
         # TODO Part 3: Create a publisher to send velocity commands by setting the proper parameters in (...)
-        self.vel_publisher=self.create_publisher(Twist, "cmd_vel", 10)
+        self.vel_publisher=self.create_publisher(Twist, "/cmd_vel", 10)
                 
         # loggers
         self.imu_logger=Logger('imu_content_'+str(motion_types[motion_type])+'.csv', headers=["acc_x", "acc_y", "angular_z", "stamp"])
@@ -53,16 +53,16 @@ class motion_executioner(Node):
 
         # TODO Part 5: Create below the subscription to the topics corresponding to the respective sensors
         # IMU subscription
-        self.imu_sub = self.create_subscriber(Imu, '/imu', self.imu_callback(), 10)
+        self.imu_sub = self.create_subscription(Imu, '/imu', self.imu_callback, 10)
         
         
         # ENCODER subscription
 
-        self.enc_sub = self.create_subscriber(Odometry, '/odom', self.odom_callback(), qos_profile=qos)
+        self.enc_sub = self.create_subscription(Odometry, '/odom', self.odom_callback, qos_profile=qos)
         
         # LaserScan subscription 
         
-        self.laser_sub = self.create_subscriber(LaserScan, '/scan', self.laser_callback(), 10)
+        self.laser_sub = self.create_subscription(LaserScan, '/scan', self.laser_callback, 10)
         
         self.create_timer(0.1, self.timer_callback)
 
@@ -80,35 +80,35 @@ class motion_executioner(Node):
         self.logger_laser = Logger('logs/laser.csv', headers=['stamp', 'ranges'])
 
     def imu_callback(self, imu_msg: Imu):
+       self.imu_initialized = True
        stamp = Time.from_msg(imu_msg.header.stamp)
        ang_vel = imu_msg.angular_velocity
        lin_acc = imu_msg.linear_acceleration
        self.logger_imu.log_values([stamp, ang_vel, lin_acc])
         
     def odom_callback(self, odom_msg: Odometry):
+       self.odom_initialized = True
        stamp = Time.from_msg(odom_msg.header.stamp)
        pose = odom_msg.pose
        twist = odom_msg.twist
        self.logger_odom.log_values([stamp, pose, twist])
                 
     def laser_callback(self, laser_msg: LaserScan):
+       self.laser_initialized = True
        stamp = Time.from_msg(laser_msg.header.stamp)
        ranges = laser_msg.ranges
        self.logger_laser.log_values([stamp, ranges])
                 
     def timer_callback(self):
-        
         if self.odom_initialized and self.laser_initialized and self.imu_initialized:
             self.successful_init=True
             
         if not self.successful_init:
             return
         
-        cmd_vel_msg=Twist()
-        
+        cmd_vel_msg=Twist() 
         if self.type==CIRCLE:
             cmd_vel_msg=self.make_circular_twist()
-        
         elif self.type==SPIRAL:
             cmd_vel_msg=self.make_spiral_twist()
                         
