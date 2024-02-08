@@ -81,20 +81,20 @@ class motion_executioner(Node):
        stamp = Time.from_msg(imu_msg.header.stamp).nanoseconds
        ang_vel = imu_msg.angular_velocity
        lin_acc = imu_msg.linear_acceleration
-       self.logger_imu.log_values([stamp, ang_vel, lin_acc])
+       self.imu_logger.log_values([stamp, ang_vel, lin_acc])
         
     def odom_callback(self, odom_msg: Odometry):
        self.odom_initialized = True
        stamp = Time.from_msg(odom_msg.header.stamp).nanoseconds
        pose = odom_msg.pose
        twist = odom_msg.twist
-       self.logger_odom.log_values([stamp, pose, twist])
+       self.odom_logger.log_values([stamp, pose, twist])
                 
     def laser_callback(self, laser_msg: LaserScan):
        self.laser_initialized = True
        stamp = Time.from_msg(laser_msg.header.stamp).nanoseconds
        ranges = laser_msg.ranges
-       self.logger_laser.log_values([stamp, ranges])
+       self.laser_logger.log_values([stamp, ranges])
                 
     def timer_callback(self):
         if self.odom_initialized and self.laser_initialized and self.imu_initialized:
@@ -131,9 +131,11 @@ class motion_executioner(Node):
     def make_spiral_twist(self):
         self.accel = 0
         self.radius_ = 0.5
+
         msg=Twist()
         msg.linear.x = self.accel
         msg.angular.z = self.radius_
+        
         self.accel+=1
         self.radius_+=0.5
 
