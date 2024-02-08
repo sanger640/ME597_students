@@ -21,6 +21,7 @@ from rclpy.time import Time
 
 # You may add any other imports you may need/want to use below
 # import ...
+from math import cos, sin
 
 CIRCLE=0; SPIRAL=1; ACC_LINE=2
 motion_types=['circle', 'spiral', 'line']
@@ -34,6 +35,8 @@ class motion_executioner(Node):
         self.type=motion_type
         
         self.radius_=0.0
+        self.angle=0.0
+        self.accel=0.0
         
         self.successful_init=False
         self.imu_initialized=False
@@ -53,8 +56,8 @@ class motion_executioner(Node):
 
         # TODO Part 5: Create below the subscription to the topics corresponding to the respective sensors
         # IMU subscription
+
         self.imu_sub = self.create_subscription(Imu, '/imu', self.imu_callback, 10)
-        
         
         # ENCODER subscription
 
@@ -73,29 +76,23 @@ class motion_executioner(Node):
     # such: Time.from_msg(imu_msg.header.stamp).nanoseconds
     # You can save the needed fields into a list, and pass the list to the log_values function in utilities.py
 
-        self.logger_imu = Logger('logs/imu.csv', headers=['stamp', 'orient', 'ang_vel', 'lin_acc'])
-
-        self.logger_odom = Logger('logs/odom.csv', headers=['stamp', 'pose', 'twist'])
-
-        self.logger_laser = Logger('logs/laser.csv', headers=['stamp', 'ranges'])
-
     def imu_callback(self, imu_msg: Imu):
        self.imu_initialized = True
-       stamp = Time.from_msg(imu_msg.header.stamp)
+       stamp = Time.from_msg(imu_msg.header.stamp).nanoseconds
        ang_vel = imu_msg.angular_velocity
        lin_acc = imu_msg.linear_acceleration
        self.logger_imu.log_values([stamp, ang_vel, lin_acc])
         
     def odom_callback(self, odom_msg: Odometry):
        self.odom_initialized = True
-       stamp = Time.from_msg(odom_msg.header.stamp)
+       stamp = Time.from_msg(odom_msg.header.stamp).nanoseconds
        pose = odom_msg.pose
        twist = odom_msg.twist
        self.logger_odom.log_values([stamp, pose, twist])
                 
     def laser_callback(self, laser_msg: LaserScan):
        self.laser_initialized = True
-       stamp = Time.from_msg(laser_msg.header.stamp)
+       stamp = Time.from_msg(laser_msg.header.stamp).nanoseconds
        ranges = laser_msg.ranges
        self.logger_laser.log_values([stamp, ranges])
                 
@@ -125,25 +122,28 @@ class motion_executioner(Node):
     # TODO Part 4: Motion functions: complete the functions to generate the proper messages corresponding to the desired motions of the robot
 
     def make_circular_twist(self):
-        
         msg=Twist()
-        msg.linear.x = 0.2
+        msg.linear.x = 1
         msg.angular.z = 0.5
          # fill up the twist msg for circular motion
         return msg
 
     def make_spiral_twist(self):
+        self.accel = 0
+        self.radius_ = 0.5
         msg=Twist()
-        msg.linear.x = 0.2
-        msg.angular.z = 0.5
+        msg.linear.x = self.accel
+        msg.angular.z = self.radius_
+        self.accel+=1
+        self.radius_+=0.5
 
          # fill up the twist msg for spiral motion
         return msg
     
     def make_acc_line_twist(self):
         msg=Twist()
-        msg.linear.x = 0.2
-        msg.angular.z = 0.5
+        msg.linear.x = self.accel
+        self.accel+=5
          # fill up the twist msg for line motion
         return msg
 
