@@ -1,3 +1,4 @@
+import math
 from math import atan2, asin, sqrt
 
 M_PI=3.1415926535
@@ -26,7 +27,7 @@ class Logger:
             # TODO Part 5: Write the values from the list to the file
             for values in values_list:
                 vals_str+=f"{values}"
-                vals_str+=". "
+                vals_str+=", "
             
             vals_str+="\n"
             
@@ -87,7 +88,10 @@ def euler_from_quaternion(quat):
     Convert quaternion (w in last place) to euler roll, pitch, yaw.
     quat = [x, y, z, w]
     """
-
+    x = quat[0]
+    y = quat[1]
+    z = quat[2]
+    w = quat[3]
     # roll
     sinr_cosp = 2 * (w * x + y * z)
     cosr_cosp = 1 - 2 * (x * x + y * y)
@@ -103,6 +107,6 @@ def euler_from_quaternion(quat):
     cosy_cosp = 1 - 2 * (y * y + z * z)
     yaw = atan2(siny_cosp, cosy_cosp)
 
-    return [roll, pitch, yaw]
+    return yaw
 
 
