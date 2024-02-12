@@ -35,7 +35,8 @@ class motion_executioner(Node):
         self.type=motion_type
         
         self.radius_=0.5
-        self.angle=0.0
+
+        # Define variables for motion callback. Allows for accelerationg speeds.
         self.accel=0.01
         
         self.successful_init=False
@@ -77,7 +78,11 @@ class motion_executioner(Node):
     # You can save the needed fields into a list, and pass the list to the log_values function in utilities.py
 
     def imu_callback(self, imu_msg: Imu):
+       
+       # Set True for timer call back
        self.imu_initialized = True
+
+       # Assignment of message contents into variables for data logging
        stamp = Time.from_msg(imu_msg.header.stamp).nanoseconds
        ang_z = imu_msg.angular_velocity.z
        lin_x = imu_msg.linear_acceleration.x
@@ -85,17 +90,27 @@ class motion_executioner(Node):
        self.imu_logger.log_values([lin_x, lin_y, ang_z, stamp])
         
     def odom_callback(self, odom_msg: Odometry):
+       
+       # Set True for timer call back
        self.odom_initialized = True
+
+       # Assignment of message contents into variables for data logging
+       stamp = Time.from_msg(odom_msg.header.stamp).nanoseconds
        x = odom_msg.pose.pose.position.x
        y = odom_msg.pose.pose.position.y
        q = odom_msg.pose.pose.orientation
+
+       # Angle of robot found from quaternion using function defined in utilities.py
        ql = [q.x, q.y, q.z, q.w]
        z = euler_from_quaternion(ql)
-       stamp = Time.from_msg(odom_msg.header.stamp).nanoseconds
        self.odom_logger.log_values([x, y, z, stamp])
                 
     def laser_callback(self, laser_msg: LaserScan):
+       
+       # Set True for timer call back
        self.laser_initialized = True
+
+       # Assignment of message contents into variables for data logging
        stamp = Time.from_msg(laser_msg.header.stamp).nanoseconds
        ranges = laser_msg.ranges
        self.laser_logger.log_values([ranges, stamp])
@@ -126,14 +141,18 @@ class motion_executioner(Node):
     # TODO Part 4: Motion functions: complete the functions to generate the proper messages corresponding to the desired motions of the robot
 
     def make_circular_twist(self):
+
+        # Constant speed and angular velocity about z axis for circle motion
         msg=Twist()
         msg.linear.x = 0.5
         msg.angular.z = 1.0
+
          # fill up the twist msg for circular motion
         return msg
 
     def make_spiral_twist(self):
 
+        # Outwards increasing spiral created by slowly increasing speed. Angular velocity maintained constant
         msg=Twist()
         msg.linear.x = self.accel
         msg.angular.z = self.radius_
@@ -143,9 +162,12 @@ class motion_executioner(Node):
         return msg
     
     def make_acc_line_twist(self):
+
+        # Acceleration in a straight line created by gradually increasing speed in x.
         msg=Twist()
         msg.linear.x = self.accel
         self.accel+=0.035
+
          # fill up the twist msg for line motion
         return msg
 
