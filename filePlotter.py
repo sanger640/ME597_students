@@ -53,8 +53,8 @@ def plot_errors(filename):
     plt.xlabel('Time [nanoseconds]')
     plt.ylabel('Magnitude')
     plt.title(dataType + ' Data for ' + motionType + ' path')
-    plt.show()
     plt.savefig('plots/' + dataType + motionType + '.jpg')
+    plt.show()
     
 import argparse
 
