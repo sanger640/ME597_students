@@ -71,8 +71,9 @@ class localization(Node):
                         0,
                         0])        
             
-            # TODO PART 5 Bonus put the Q and R matrices
-            # that you conclude from lab Three
+            # TODO PART In case you went through KF 
+            # in the last lab you can put your gains here
+            # and try your code with KF in loop.
             Q=...
             R=...
             P=...
