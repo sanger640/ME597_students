@@ -65,11 +65,6 @@ ros2 action send_goal /dock irobot_create_msgs/action/Dock {}
 - Declare ros2 domain: export ROS_DOMAIN_ID=X (X being the number of your robot)
 
 ## Part 3 - Map aquisition (5 marks)
-Check the [List of groups](https://uofwaterloo-my.sharepoint.com/:x:/g/personal/y526hu_uwaterloo_ca/Ea4EkpcchnhMki8bDj3RWygBWgvsYDx4HV4QvirBCZQdzQ?e=vS0vna) Excel sheet to see which entrance of the maze you have been assigned to and the time slots reserved for your group. There is a robot at each entrance. Use the robot at the entrance assigned to your group.
-
-**Please try to finish within your allocated time.**
-
-**NOTE: do not move the dock, do not change the positioning of the robots, this is important to be able to use your map later on.**
 
 Undock the robot, put the robot in the entrance marked for you, and reset the odometry, and then acquire the map as you did in LAB-1 and save it as room for use in the planning.
 
@@ -99,7 +94,7 @@ For this part:
 - Complete the code in ```planner.py``` to create the cost map using the ```mapManipulator``` from ```mapUtilities.py```;
 - Complete the code in ```planner.py``` to create a trajectory that is a list of goal poses returned by the searching algorithm which correspond to the path to follow;
 - Complete the code in ```decisions.py``` to adapt the code for the path planner.
-- **Bonus** - In ```decisions.py``` use the PID gains from your Lab2, if you could not finish Lab2 or could not obtain good values, ask a TA (no bonus). Complete the code in ```localization.py``` with the Q, R, and P matrices you obtained in Lab3. If you could not obtain good values or you could not obtain any values, you can use ```rawSensors``` instead of ```kalmanFilter``` for the localizer (no bonus if rawSensors is used).
+
 
 ## Part 6 - Test your path planner (20 marks)
 To test the path planner:
