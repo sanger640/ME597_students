@@ -87,13 +87,14 @@ For this part:
 - Follow the comments to complete the code in ```a_star.py``` to plan the path using the A* algorithm. 
 - Implement two different heuristics: Manhattan distance and Euclidean distance. A policy for switching between these two heuristics is not implemented, you are free to implement this the way you prefer (hard coded or with switching parameter or any other way).
 
-## Part 5 - Complete the code for testing the path (25 marks + 5 bonus marks)
+## Part 5 - Complete the code for testing the path (25 marks + 5 marks bonus)
 To utilize the planner, it is necessary to create a cost map and define a goal pose. Differently from previous planners you have used, in this case the searching algorithm will create a list of poses that the robot has to follow (a path). So some adaptations to the code are necessary.
 
 For this part:
 - Complete the code in ```planner.py``` to create the cost map using the ```mapManipulator``` from ```mapUtilities.py```;
 - Complete the code in ```planner.py``` to create a trajectory that is a list of goal poses returned by the searching algorithm which correspond to the path to follow;
 - Complete the code in ```decisions.py``` to adapt the code for the path planner.
+- Bonus point if you integrate the code with the Particle Filter you developed in the Lab 3. 
 
 
 ## Part 6 - Test your path planner (20 marks)
