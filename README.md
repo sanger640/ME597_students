@@ -74,6 +74,8 @@ ros2 service call /reset_pose irobot_create_msgs/srv/ResetPose {}
 # terminal 2
 ros2 launch turtlebot4_navigation slam.launch.py
 # terminal 3
+ros2 launch turtlebot4_viz view_robot.launch.py
+# terminal 4
 ros2 run nav2_map_server map_saver_cli -f room
 ``` 
 When the map is acquired, make sure you **don't pick up the robot** so you wouldn't alter the odometry. If by any change you did, put the robot back on the dock, then undock and reset the odometry. This is to avoid for you to map the enviornment again.
