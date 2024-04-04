@@ -44,6 +44,9 @@ def return_path(current_node,maze):
     return path
 
 
+def euclid_distance(curr, end):
+    return np.linalg.norm(curr - end)
+
 def search(maze, start, end):
 
     print("searching ....")
@@ -61,16 +64,16 @@ def search(maze, start, end):
     """
 
     # TODO PART 4 Create start and end node with initized values for g, h and f
-    start_node = Node(...)
-    start_node.g = ...
-    start_node.h = ...
-    start_node.f = ...
+    start_node = Node(parent=None, position=start)
+    start_node.g = 0
+    start_node.h = euclid_distance(start, end)
+    start_node.f = start_node.g + start_node.h
 
     
-    end_node = Node(...)
-    end_node.g = ...
-    end_node.h = ...
-    end_node.f = ...
+    end_node = Node(parent=None, position=end)
+    end_node.g = end_node.parent.g + euclid_distance(end_node.parent.position, end_node.position)
+    end_node.h = 0
+    end_node.f = end_node.g + end_node.h
 
     # Initialize both yet_to_visit and visited list
     # in this list we will put all node that are yet_to_visit for exploration. 
@@ -90,14 +93,14 @@ def search(maze, start, end):
     
     # TODO PART 4 what squares do we search . serarch movement is left-right-top-bottom 
     #(4 movements) from every positon
-    move  =  [[...], # go up
-              [...], # go left
-              [...], # go down
-              [...], # go right
-              [...], # go up left
-              [...], # go down left
-              [...], # go up right
-              [...]] # go down right
+    move  =  [[-1,0 ], # go up
+              [0, -1], # go left
+              [1, 0], # go down
+              [0, 1], # go right
+              [-1, -1], # go up left
+              [1, -1], # go down left
+              [-1, 1], # go up right
+              [1, 1]] # go down right
 
 
     """
@@ -118,7 +121,7 @@ def search(maze, start, end):
                 d) else move the child to yet_to_visit list
     """
     # TODO PART 4 find maze has got how many rows and columns 
-    no_rows, no_columns = ...
+    no_rows, no_columns = maze.shape
     
 
     # Loop until you find the end
@@ -158,10 +161,10 @@ def search(maze, start, end):
         for new_position in move: 
 
             # TODO PART 4 Get node position
-            node_position = (...)
+            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
             # TODO PART 4 Make sure within range (check if within maze boundary)
-            if (...):
+            if (no_rows > node_position[0], no_cols > node_position[1]):
                 continue
 
             # Make sure walkable terrain
@@ -179,13 +182,13 @@ def search(maze, start, end):
         for child in children:
   
             # TODO PART 4 Child is on the visited list (search entire visited list)
-            if len(...) > 0:
+            if len([i for i in visited_list if child]) > 0:
                 continue
 
             # TODO PART 4 Create the f, g, and h values
-            child.g = ...
+            child.g = child.parent.g + euclid_distance(child.parent.position, child.position)
             ## Heuristic costs calculated here, this is using eucledian distance
-            child.h = ...
+            child.h = euclid_distance(child.position, end)
 
             child.f = child.g + child.h
 
